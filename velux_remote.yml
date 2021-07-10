@@ -5,11 +5,11 @@ substitutions:
 esphome:
   name: "${device_name}"
   platform: ESP8266
-  board: d1_mini
+  board: nodemcuv2
 
 wifi:
-  ssid: "Bazinga-IOT"
-  password: !secret wifipassword
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
@@ -23,10 +23,10 @@ logger:
   
 # Enable Home Assistant API
 api:
-  password: !secret otapassword
+  password: !secret ota_password
 
 ota:
-  password: !secret otapassword
+  password: !secret ota_password
 
 switch:
   - platform: gpio

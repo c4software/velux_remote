@@ -1,11 +1,11 @@
 substitutions:
-  friendly_name: Velux Remote
   device_name: velux_remote
 
 esphome:
   name: "${device_name}"
   platform: ESP8266
-  board: nodemcuv2
+  # board: nodemcuv2
+  board: d1_mini
 
 wifi:
   ssid: !secret wifi_ssid
@@ -13,13 +13,15 @@ wifi:
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
-    ssid: "fallback"
-    password: "pommesmayo"
+    ssid: "${device_name}"
+    password: !secret wifi_password
 
 captive_portal:
 
 # Enable logging
 logger:
+  level: NONE
+  baud_rate: 0
   
 # Enable Home Assistant API
 api:
@@ -30,40 +32,89 @@ ota:
 
 switch:
   - platform: gpio
-    id: velux_down
-    pin: 13
+    id: velux_est_down
+    pin: D7
     inverted: yes
 
   - platform: gpio
-    id: velux_stop
-    pin: 12
+    id: velux_est_stop
+    pin: D6
     inverted: yes
 
   - platform: gpio
-    id: velux_up
-    pin: 14
+    id: velux_est_up
+    pin: D5
     inverted: yes
 
+  - platform: gpio
+    id: velux_ouest_down
+    pin: 
+      number: D4
+      mode: 
+        output: True
+        input: False
+        analog: False      
+    inverted: yes
+
+  - platform: gpio
+    id: velux_ouest_stop
+    pin: 
+      number: D1
+      mode: 
+        output: True
+        input: False
+        analog: False
+    inverted: yes
+
+  - platform: gpio
+    id: velux_ouest_up
+    pin: 
+      number: D2
+      mode: 
+        output: True
+        input: False
+        analog: False
+    inverted: yes
+    
 cover:
   - platform: template
-    name: "${friendly_name}"
+    name: "Velux Est"
     open_action:
-      # Cancel any previous action
-      - switch.turn_off: velux_down
-      # Turn the OPEN switch on briefly
-      - switch.turn_on: velux_up
+      - switch.turn_off: velux_est_down
+      - switch.turn_on: velux_est_up
       - delay: 0.1s
-      - switch.turn_off: velux_up
+      - switch.turn_off: velux_est_up
     close_action:
-      - switch.turn_off: velux_up
-      - switch.turn_on: velux_down
+      - switch.turn_off: velux_est_up
+      - switch.turn_on: velux_est_down
       - delay: 0.1s
-      - switch.turn_off: velux_down
+      - switch.turn_off: velux_est_down
     stop_action:
-      - switch.turn_off: velux_down
-      - switch.turn_off: velux_up
-      - switch.turn_on: velux_stop
+      - switch.turn_off: velux_est_down
+      - switch.turn_off: velux_est_up
+      - switch.turn_on: velux_est_stop
       - delay: 0.1s
-      - switch.turn_off: velux_stop
+      - switch.turn_off: velux_est_stop
+    optimistic: true
+    assumed_state: true
+
+  - platform: template
+    name: "Velux Ouest"
+    open_action:
+      - switch.turn_off: velux_ouest_down
+      - switch.turn_on: velux_ouest_up
+      - delay: 0.1s
+      - switch.turn_off: velux_ouest_up
+    close_action:
+      - switch.turn_off: velux_ouest_up
+      - switch.turn_on: velux_ouest_down
+      - delay: 0.1s
+      - switch.turn_off: velux_ouest_down
+    stop_action:
+      - switch.turn_off: velux_ouest_down
+      - switch.turn_off: velux_ouest_up
+      - switch.turn_on: velux_ouest_stop
+      - delay: 0.1s
+      - switch.turn_off: velux_ouest_stop
     optimistic: true
     assumed_state: true
